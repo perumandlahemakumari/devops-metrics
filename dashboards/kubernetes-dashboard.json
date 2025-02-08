@@ -1,1 +1,81 @@
-ECHO is off.
+{
+  "dashboard": {
+    "id": null,
+    "title": "DevOps Metrics Monitoring Dashboard",
+    "description": "Real-time Kubernetes monitoring for DevOps metrics.",
+    "panels": [
+      {
+        "title": "CPU Usage (Percentage)",
+        "type": "gauge",
+        "datasource": "Prometheus",
+        "targets": [
+          {
+            "expr": "100 * (sum(rate(container_cpu_usage_seconds_total{namespace='devops'}[1m])) / sum(kube_pod_container_resource_requests_cpu_cores{namespace='devops'}))",
+            "legendFormat": "CPU Usage",
+            "refId": "A"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "percent",
+            "min": 0,
+            "max": 100
+          }
+        }
+      },
+      {
+        "title": "Memory Usage (MiB)",
+        "type": "gauge",
+        "datasource": "Prometheus",
+        "targets": [
+          {
+            "expr": "sum(container_memory_usage_bytes{namespace='devops'}) / 1024 / 1024",
+            "legendFormat": "Memory Usage",
+            "refId": "B"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "mbytes"
+          }
+        }
+      },
+      {
+        "title": "Request Latency (ms)",
+        "type": "timeseries",
+        "datasource": "Prometheus",
+        "targets": [
+          {
+            "expr": "histogram_quantile(0.95, sum(rate(http_request_duration_seconds_bucket{job='flask-app'}[5m])) by (le)) * 1000",
+            "legendFormat": "95th Percentile Latency",
+            "refId": "C"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "ms"
+          }
+        }
+      },
+      {
+        "title": "Active Pod Count",
+        "type": "stat",
+        "datasource": "Prometheus",
+        "targets": [
+          {
+            "expr": "count(kube_pod_status_ready{namespace='devops', condition='true'})",
+            "legendFormat": "Active Pods",
+            "refId": "D"
+          }
+        ]
+      }
+    ],
+    "time": {
+      "from": "now-30m",
+      "to": "now"
+    },
+    "refresh": "5s",
+    "schemaVersion": 25,
+    "version": 1
+  }
+}

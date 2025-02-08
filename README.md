@@ -109,7 +109,6 @@ kubectl patch svc argocd-server -n argocd -p '{"spec": {"type": "LoadBalancer"}}
 echo "🔹 Deploying PostgreSQL, Flask API, Prometheus, and Grafana..."
 git clone https://github.com/your-username/devops-metrics.git
 cd devops-metrics
-
 kubectl apply -f k8s/postgres-deployment.yaml
 kubectl apply -f k8s/flask-app-deployment.yaml
 kubectl apply -f k8s/prometheus-deployment.yaml
@@ -117,16 +116,27 @@ kubectl apply -f k8s/grafana-deployment.yaml
 kubectl apply -f k8s/argocd-app.yaml
 
 echo "🎉 Setup complete! Access ArgoCD at http://your-ec2-public-ip:3000"
+
 echo "🔑 Retrieve ArgoCD password using: "
+
 echo "kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath=\"{.data.password}\" | base64 -d"
+
 💡 How to Use?
+
 1️⃣ Copy & Save the script as setup-devops-metrics.sh.
+
 2️⃣ Make it executable:
 chmod +x setup-devops-metrics.sh
+
 3️⃣ Run the script:
 ./setup-devops-metrics.sh
+
 4️⃣ Wait for completion, then access:
+
 ArgoCD: http://your-ec2-public-ip:3000
+
 Grafana: http://your-ec2-public-ip:3000
+
 Jenkins: http://your-ec2-public-ip:8080
+
 This script automates AWS EC2 setup, Kubernetes deployment, Jenkins installation, and ArgoCD integration! 🚀🔥

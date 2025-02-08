@@ -1,1 +1,28 @@
-ECHO is off.
+# Ignore Python cache and virtual environments
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+venv/
+.env
+
+# Ignore IDE/editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Ignore Git files
+.git/
+.gitignore
+
+# Ignore Docker artifacts
+Dockerfile
+.dockerignore
+
+# Ignore logs and temp files
+logs/
+*.log
+*.tmp
+*.bak
+

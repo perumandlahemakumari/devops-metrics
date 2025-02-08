@@ -1,1 +1,46 @@
-ECHO is off.
+pipeline {
+    agent any
+
+    environment {
+        DOCKER_IMAGE = "your-dockerhub-username/devops-metrics"
+        KUBE_NAMESPACE = "devops"
+    }
+
+    stages {
+        stage('Clone Repo') {
+            steps {
+                git 'https://github.com/your-repo/devops-metrics.git'
+            }
+        }
+
+        stage('Build & Push Docker Image') {
+            steps {
+                sh """
+                    docker build -t $DOCKER_IMAGE:latest .
+                    docker login -u your-dockerhub-username -p your-dockerhub-password
+                    docker push $DOCKER_IMAGE:latest
+                """
+            }
+        }
+
+        stage('Update Kubernetes Manifests') {
+            steps {
+                sh """
+                    sed -i 's|image:.*|image: $DOCKER_IMAGE:latest|' k8s/flask-app-deployment.yaml
+                    git config --global user.email "ci-bot@example.com"
+                    git config --global user.name "CI Bot"
+                    git add k8s/flask-app-deployment.yaml
+                    git commit -m "Updated Docker image version"
+                    git push origin main
+                """
+            }
+        }
+
+        stage('Trigger ArgoCD Sync') {
+            steps {
+                sh "argocd app sync devops-metrics"
+            }
+        }
+    }
+}
+

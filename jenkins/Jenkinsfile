@@ -1,46 +1,36 @@
 pipeline {
     agent any
-
     environment {
-        DOCKER_IMAGE = "your-dockerhub-username/devops-metrics"
-        KUBE_NAMESPACE = "devops"
+        DOCKER_IMAGE = 'your-dockerhub-username/devops-metrics:latest'
     }
-
     stages {
-        stage('Clone Repo') {
+        stage('Checkout Code') {
             steps {
-                git 'https://github.com/your-repo/devops-metrics.git'
+                git credentialsId: 'github-ssh', url: 'https://github.com/perumandlahemakumari/devops-metrics.git', branch: 'main'
             }
         }
-
-        stage('Build & Push Docker Image') {
+        stage('Build & Test') {
             steps {
-                sh """
-                    docker build -t $DOCKER_IMAGE:latest .
-                    docker login -u your-dockerhub-username -p your-dockerhub-password
-                    docker push $DOCKER_IMAGE:latest
-                """
+                sh 'pip install -r requirements.txt'
+                sh 'pytest'
             }
         }
-
-        stage('Update Kubernetes Manifests') {
+        stage('Build Docker Image') {
             steps {
-                sh """
-                    sed -i 's|image:.*|image: $DOCKER_IMAGE:latest|' k8s/flask-app-deployment.yaml
-                    git config --global user.email "ci-bot@example.com"
-                    git config --global user.name "CI Bot"
-                    git add k8s/flask-app-deployment.yaml
-                    git commit -m "Updated Docker image version"
-                    git push origin main
-                """
+                sh 'docker build -t $DOCKER_IMAGE .'
             }
         }
-
-        stage('Trigger ArgoCD Sync') {
+        stage('Push to Docker Hub') {
             steps {
-                sh "argocd app sync devops-metrics"
+                withDockerRegistry([credentialsId: 'docker-hub', url: '']) {
+                    sh 'docker push $DOCKER_IMAGE'
+                }
+            }
+        }
+        stage('Deploy to Kubernetes') {
+            steps {
+                sh 'kubectl apply -f k8s/flask-deployment.yaml'
             }
         }
     }
 }
-

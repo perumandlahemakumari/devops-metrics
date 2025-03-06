@@ -6,7 +6,7 @@ metadata:
 spec:
   project: default
   source:
-    repoURL: 'https://github.com/your-repo/devops-metrics.git'
+    repoURL: 'https://github.com/perumandlahemakumari/devops-metrics.git'
     targetRevision: main
     path: k8s
   destination:

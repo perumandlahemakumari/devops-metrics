@@ -1,6 +1,1 @@
-flask
-flask-cors
-psycopg2-binary
-prometheus_client
-requests
-gunicorn
+ECHO is off.
